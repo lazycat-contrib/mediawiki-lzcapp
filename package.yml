@@ -1,0 +1,18 @@
+package: community.lazycat.app.mediawiki
+name: MediaWiki
+version: 0.0.0
+description: "Wiki engine that powers Wikipedia, with page history, categories and rich text editing."
+min_os_version: "1.5.0"
+homepage: https://github.com/wikimedia/mediawiki
+author: Wikimedia
+license: GPL-2.0
+permissions:
+  required:
+    - net.internet
+locales:
+  zh:
+    name: MediaWiki
+    description: "维基百科同款维基引擎：多人协作写条目、版本历史可回溯、分类和模板齐全，适合做知识库或团队手册。"
+  en:
+    name: MediaWiki
+    description: "Wiki engine that powers Wikipedia, with page history, categories and rich text editing."

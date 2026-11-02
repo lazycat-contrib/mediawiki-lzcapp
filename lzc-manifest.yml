@@ -1,0 +1,61 @@
+application:
+  subdomain: mediawiki
+  multi_instance: false
+  upstreams:
+    - location: /package-licenses/
+      backend: file:///lzcapp/pkg/content/licenses/
+    - location: /
+      backend: http://mediawiki:80/
+
+services:
+  db:
+    image: docker.1ms.run/library/mariadb:10.11
+    environment:
+      - MARIADB_ROOT_PASSWORD={{ stable_secret "mediawiki_db_root" | replace "\r" "" | replace "\n" "" }}
+      - MARIADB_DATABASE=mediawiki
+      - MARIADB_USER=mediawiki
+      - |-
+        MARIADB_PASSWORD={{ .U.db_password }}
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mariadb-admin ping -h 127.0.0.1 -u root -p"$$MARIADB_ROOT_PASSWORD"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    binds:
+      - /lzcapp/var/db:/var/lib/mysql
+
+  mediawiki:
+    # upstream: library/mediawiki:1.46.2
+    image: docker.1ms.run/library/mediawiki:1.46.2
+    depends_on:
+      - db
+    environment:
+      - TZ=Asia/Shanghai
+    binds:
+      - /lzcapp/var/html:/var/www/html
+
+usage: |
+  MediaWiki 是维基百科同款的维基引擎：多人协作写条目、版本历史可回溯。
+
+  使用方法：
+  1. 打开应用会进入安装向导。
+  2. 数据库那一步选 MariaDB/MySQL，主机填 db，库名 mediawiki，用户名 mediawiki，
+     密码见安装参数里的"数据库密码"。
+  3. 一路填完，向导最后会生成 LocalSettings.php，按提示下载后放到本应用数据目录
+     （/lzcapp/var/html/LocalSettings.php），然后点"进入我的维基"。
+
+  数据与安全：
+  - 数据库在 MariaDB（/lzcapp/var/db），程序与 LocalSettings.php 在 /lzcapp/var/html。
+    卸载应用会一并删除，请定期备份。
+  - 数据库密码由你安装时设置，默认随机生成，不存在内置弱口令。
+  - 管理员账号由安装向导创建。
+  - 应用经懒猫入口鉴权访问。
+
+  说明：
+  - 本应用包含两个容器（MediaWiki + MariaDB），启动顺序由依赖关系保证。
+  - 安装向导结束后必须把 LocalSettings.php 放进 /lzcapp/var/html，否则会重复进入安装页。
+  - 未配置邮件服务，邮件确认、密码找回等依赖邮件的功能不可用。
+  - 未做真机验证：安装向导、登录、建条目、编辑历史以及重启后持久化均未在设备上实测。
