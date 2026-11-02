@@ -1,6 +1,6 @@
 package: community.lazycat.app.mediawiki
 name: MediaWiki
-version: 0.0.0
+version: 1.46.2
 description: "Wiki engine that powers Wikipedia, with page history, categories and rich text editing."
 min_os_version: "1.5.0"
 homepage: https://github.com/wikimedia/mediawiki
